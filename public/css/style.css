@@ -1,0 +1,22 @@
+body {
+    background-color: hotpink;
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+}
+
+.contact_block {
+    display: flex;
+    flex-direction: row; 
+    justify-content: center;
+    align-items: center;
+}
+
+.username {
+    margin-right: 100px;
+}
+
+.phone {
+    margin-left: 100px;
+}
