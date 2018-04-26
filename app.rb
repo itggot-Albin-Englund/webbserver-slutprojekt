@@ -39,7 +39,7 @@ class App < Sinatra::Base
 				session[:back] = "/register"
 				redirect('/error')
 			end
-			redirect('/')
+			redirect('/login')
 		else
 			session[:error] = "Passwords not the same"
 			redirect('/error')
@@ -55,14 +55,14 @@ class App < Sinatra::Base
 		username = params[:username]
 		password = params[:password]
 		if username == "" or password == ""
-			redirect('/website')
+			redirect('/contacts')
 		end
 		db = SQLite3::Database.new("./db/slutprojekt.db")
 		begin 
 			a = db.execute("SELECT * FROM users WHERE username IS (?)", [username])[0]
 			password_digest = BCrypt::Password.new(a[2])
 		rescue
-			redirect('/website')
+			redirect('/contacts')
 		end
 		if a[1] == username && password_digest == password
 			session[:user] = true
@@ -70,21 +70,79 @@ class App < Sinatra::Base
 		else
 			session[:user] = false
 		end
-		redirect('/website')
+		redirect('/contacts')
 	end
 
-	get('/website') do
+	get('/contacts') do
 		username = session[:username]
 		if session[:user] == true
 			user1 = session[:username]
 			db = SQLite3::Database.new("./db/slutprojekt.db")
 			users = db.execute("SELECT * FROM users WHERE username IS NOT (?)", [user1])
-			erb(:website, locals:{users: users})
+			erb(:contacts, locals:{users: users})
 		else
 			session[:error] = "Wrong username or password"
 			session[:back] = "/login"
 			redirect('/error')
 		end
-	end   
+	end  
+
+	
+	
+	get('/favorites') do
+		username = session[:username]
+		if session[:user] == true
+			user1 = session[:username]
+			db = SQLite3::Database.new("./db/slutprojekt.db")
+			user1_id = db.execute("SELECT id FROM users WHERE username IS (?)", [user1])
+			user1_id = user1_id[0]
+			# users = db.execute("SELECT favorite_id FROM favorites WHERE user_id IS (?)", [user1_id]
+			users = db.execute("SELECT * FROM users WHERE id IN (SELECT favorite_id FROM favorites WHERE user_id IS (?))", [user1_id])
+
+			erb(:favorites, locals:{users: users})
+		else
+			session[:error] = "Something went wrong :(("
+			session[:back] = "/login"
+			redirect('/error')
+		end
+	end
+
+	post('/add-favorite') do
+	
+		if session[:user] == true
+			user1 = session[:username]
+			db = SQLite3::Database.new("./db/slutprojekt.db")
+			user1_id = db.execute("SELECT id FROM users WHERE username IS (?)", [user1])
+			user1_id = user1_id[0]
+			favorite_id = params[:favorite_id]
+			db.execute("INSERT INTO favorites (user_id, favorite_id) VALUES (?,?)", [user1_id, favorite_id])
+
+			redirect('/favorites')
+		else
+			session[:error] = "Something went wrong :(("
+			session[:back] = "/login"
+			redirect('/error')
+		end
+
+	end
+
+	post('/remove-favorite') do
+	
+		if session[:user] == true
+			user1 = session[:username]
+			db = SQLite3::Database.new("./db/slutprojekt.db")
+			user1_id = db.execute("SELECT id FROM users WHERE username IS (?)", [user1])
+			user1_id = user1_id[0]
+			favorite_id = params[:favorite_id]
+			db.execute("DELETE FROM favorites WHERE (user_id=? AND favorite_id=?)", [user1_id, favorite_id])
+
+			redirect('/favorites')
+		else
+			session[:error] = "Something went wrong :(("
+			session[:back] = "/login"
+			redirect('/error')
+		end
+
+	end
 	
 end

@@ -1,0 +1,30 @@
+<h1>Favorites</h1>
+
+
+<% if users.length > 1 %>
+    <div class="contact_block">
+        <h4 class="username">Username</h4>
+        <h4 class="phone">Phone</h4>        
+    </div>
+
+    <% i = 0 %>
+    <% while i < users.length%>
+        <div class="contact_block">
+            <p class="username"> <%= users[i][1]%></p>
+            <p class="phone"> <%= users[i][3]%></p>
+            <form action="/remove-favorite" method="POST">
+                <input type="hidden" name="favorite_id" value="<%=users[i][0]%>">
+                <input type="submit" value="Remove from favorites">
+            </form>
+            <% i = i + 1%>
+        </div>
+    <% end %>
+
+<% else %>
+ <div class="contact_block">
+ <h4> Choose favorites from all contacts </h4>
+ </div>
+<% end %>
+
+<a href= "/contacts">See all contacts</a>
+<a class="logout" href="/">Logout</a>
