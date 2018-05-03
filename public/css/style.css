@@ -14,9 +14,21 @@ body {
 }
 
 .username {
-    margin-right: 100px;
+    width: 300px;
 }
 
 .phone {
-    margin-left: 100px;
+    width: 200px;
+}
+
+.add-button {
+    width: 100px;
+}
+
+.phone-header {
+    width: 200px;
+}
+
+.ph {
+    width: 100px;
 }

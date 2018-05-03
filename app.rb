@@ -1,6 +1,8 @@
+require_relative './model/model'
 class App < Sinatra::Base
 
 	enable:sessions
+	include SlutprojektDB
 
 	get('/error') do
 		error = session[:error]
@@ -27,7 +29,14 @@ class App < Sinatra::Base
 			session[:error] = "Username, password or phone number is not filled in"
 			session[:back] = "/register"
 			redirect('/error')
+
+		elsif username.length > 21 or phone.length > 21 
+			session[:error] = "Username or phone number is too long(maximum 20 digits)"
+			session[:back] = "/register"
+			redirect('/error')
+
 		end
+
 		
 		if password == re_password
 			password_digest = BCrypt::Password.create(password)
@@ -57,14 +66,14 @@ class App < Sinatra::Base
 		if username == "" or password == ""
 			redirect('/contacts')
 		end
-		db = SQLite3::Database.new("./db/slutprojekt.db")
+
 		begin 
-			a = db.execute("SELECT * FROM users WHERE username IS (?)", [username])[0]
-			password_digest = BCrypt::Password.new(a[2])
+			user = get_user(username)
+			password_digest = BCrypt::Password.new(user[2])
 		rescue
 			redirect('/contacts')
 		end
-		if a[1] == username && password_digest == password
+		if user[1] == username && password_digest == password
 			session[:user] = true
 			session[:username] = username
 		else
